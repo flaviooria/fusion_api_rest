@@ -25,7 +25,7 @@ class Login extends REST_Controller {
         if (!isset($user_name) || !isset($user_password)) {
             $respuesta = array(
                 'err' => TRUE,
-                'mensaje' => 'Debe indicar los dos parámetros'
+                'message' => 'Debe indicar los dos parámetros'
             );
             $this -> response($respuesta, Rest_Controller::HTTP_BAD_REQUEST);
             return ;
@@ -36,7 +36,7 @@ class Login extends REST_Controller {
         if (!isset($user)) {
             $respuesta = array(
                 'err' => TRUE,
-                'mensaje' => 'El usuario no existe',
+                'message' => 'El usuario no existe',
                 'user' => null
             );
             $this -> response($respuesta, Rest_Controller::HTTP_NOT_FOUND);
@@ -44,7 +44,7 @@ class Login extends REST_Controller {
         } else {
             $respuesta = array(
                 'err' => FALSE,
-                'mensaje' => 'user cargado correctamente',
+                'message' => 'user cargado correctamente',
                 'user' => $user
             );
             $this -> response($respuesta);
@@ -56,5 +56,4 @@ class Login extends REST_Controller {
         //Codeigniter ya tiene un metodo para dar la respuesta en JSON automatico
         $this -> response($user);
     }
-
 }
