@@ -10,30 +10,64 @@ class User_model extends CI_model{
     public $isAdmin;
 
     public function get_user($name, $password) {
+        $this -> db -> reset_query();
         $this -> db -> where(array('name' => $name, 'password' => $password, 'isActive' => 1));
         $query = $this -> db -> get('users');
 
         $result = $query -> custom_row_object(0, 'User_model');
         
-        if (isset($result)) {
+        if (isset($result)) { // Si tiene datos...
+            // Cambio los datos del usuario a los originales
             $result -> id = intval($result -> id);
             $result -> isActive = boolval($result -> isActive);
             $result -> isAdmin = boolval($result -> isAdmin);
+
+            return $result;
+        } else {
+            return null;
+        }
+    }
+
+    public function update($user){
+        $query = $this -> db -> get_where('users', array('id' => $this -> id));
+        $route_id = $query -> row();
+        
+        //Comprobamos si existe
+        $this -> db -> reset_query(); //reseteo las consultas
+        $this-> db ->where('id', $this -> id); //Le paso la id al update  y listo
+        if (isset($route_id) && $this -> db -> update('users',$this)) {
+            // Se actualiza correctamente
+            $response = array(
+                'error' => null,
+                'user' => $this,
+            );
+
+            return $response;
+        } else {
+            // No se pudo actualizar
+            $response = array(
+                'error' => $this -> db -> error_message(),
+                'user' => null,
+            );
+
+            return $response;
+        }
+    }
+
+
+    public function clean_data($dirty_data)
+    {
+        //Vamos a coger los datos que nos vengas ya sea put o post y limpiar los campos que no existan
+        foreach ($dirty_data as $name_attribute => $value) {
+            if (property_exists('User_model', $name_attribute)) {
+                $this->$name_attribute = $value;
+            }
         }
 
-        return $result;
+        //Si activo es null, por defecto a 1
+        if ($this-> isActive == null) {
+            $this-> isActive = 1;
+        }
+        return $this;
     }
-
-    public function insert($User){
-        return 'User Insertado';
-    }
-
-    public function update($User){
-        return 'User Actualizado';
-    }
-
-    public function delete($User){
-        return 'User Borrado';
-    }
-
 }

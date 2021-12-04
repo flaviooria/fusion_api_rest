@@ -24,8 +24,8 @@ class Login extends REST_Controller {
         //Validar el parámetro
         if (!isset($user_name) || !isset($user_password)) {
             $respuesta = array(
-                'err' => TRUE,
-                'message' => 'Debe indicar los dos parámetros'
+                'error' => array('err' => 'Parámetros incorrectos o faltantes'),
+                'user' => null
             );
             $this -> response($respuesta, Rest_Controller::HTTP_BAD_REQUEST);
             return ;
@@ -33,20 +33,21 @@ class Login extends REST_Controller {
 
         $user = $this -> User_model -> get_user($user_name, $user_password);
         //Validamos el user
-        if (!isset($user)) {
+        if ($user == null) {
             $respuesta = array(
-                'err' => TRUE,
-                'message' => 'El usuario no existe',
+                'error' => array('err' => 'El usuario no existe'),
                 'user' => null
             );
-            $this -> response($respuesta, Rest_Controller::HTTP_NOT_FOUND);
+
+            $this -> response($respuesta, Rest_Controller::HTTP_INTERNAL_SERVER_ERROR);
             return ;
+
         } else {
             $respuesta = array(
-                'err' => FALSE,
-                'message' => 'user cargado correctamente',
+                'error' => null,
                 'user' => $user
             );
+
             $this -> response($respuesta);
             return ;
         }
@@ -55,5 +56,38 @@ class Login extends REST_Controller {
 
         //Codeigniter ya tiene un metodo para dar la respuesta en JSON automatico
         $this -> response($user);
+    }
+
+    public function user_put() {
+        // Cojo los datos que nos pasas por el POST
+        $data = $this -> put();
+        // Cargo la librería form_validation que trae CodeIgniter.
+        $this -> load -> library('form_validation');
+        // Le digo al form validation, que datos debe validar
+        $this -> form_validation -> set_data($data);
+        // Aplico la validación con campo, etiqueta y regla.
+        $this -> form_validation -> set_rules('id', 'id', 'required');
+        $this -> form_validation -> set_rules('name', 'nombre', 'required');
+        $this -> form_validation -> set_rules('password', 'contrasenia', 'required');
+        $this -> form_validation -> set_rules('isActive', 'estaActivo', 'required');
+        $this -> form_validation -> set_rules('isAdmin', 'esAdministrador', 'required');
+        // TRUE: Todo ok, FALSE: Errores de validación
+        if ($this -> form_validation -> run()) {
+            $user = $this -> User_model -> clean_data($data);
+            $respuesta = $user -> update($user);
+            if ($respuesta['error'] == null) {
+                $this -> response($respuesta, REST_Controller::HTTP_BAD_REQUEST);
+            } else {
+                $this -> response($respuesta);
+            }
+        } else {
+            // Validación fallida
+            $respuesta = array(
+                'error' => $this -> form_validation -> get_errores_arreglo(),
+                'user' => null
+            );
+
+            $this -> response($respuesta, REST_Controller::HTTP_BAD_REQUEST);
+        }
     }
 }

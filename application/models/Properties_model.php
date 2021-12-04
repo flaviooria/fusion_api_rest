@@ -19,4 +19,45 @@ class Properties_model extends CI_Model {
 
         return $result;
     }
+
+    public function update($properties)
+    {
+        $query = $this -> db -> get_where('properties', array('id' => $this -> id));
+        $route_id = $query -> row();
+        
+        //Comprobamos si existe
+        $this -> db -> reset_query(); //reseteo las consultas
+        $this-> db ->where('id', $this -> id); //Le paso la id al update  y listo
+        if (isset($route_id) && $this -> db -> update('properties',$this)) {
+            // Se actualiza correctamente
+            $response = array(
+                'err' => FALSE,
+                'message' => 'Registro actualziado correctamente',
+                'error' => 'Data correct',
+            );
+
+            return $response;
+        } else {
+            // No se pudo actualizar
+            $response = array(
+                'err' => TRUE,
+                'message' => 'Registro no actualziado correctamente',
+                'error' => $this->db->error_message(),
+            );
+
+            return $response;
+        }
+    }
+
+    public function clean_data($dirty_data)
+    {
+        //Vamos a coger los datos que nos vengas ya sea put o post y limpiar los campos que no existan
+        foreach ($dirty_data as $name_attribute => $value) {
+            if (property_exists('Properties_model', $name_attribute)) {
+                $this->$name_attribute = $value;
+            }
+        }
+
+        return $this;
+    }
 }
