@@ -15,9 +15,13 @@ class Properties_model extends CI_Model {
         if(isset($result)) {
             $result -> id = intval($result -> id);
             $result -> font_size = floatval(($result -> font_size));
+
+            return $result;
+        } else {
+            return null;
         }
 
-        return $result;
+        
     }
 
     public function update($properties)
@@ -31,18 +35,16 @@ class Properties_model extends CI_Model {
         if (isset($route_id) && $this -> db -> update('properties',$this)) {
             // Se actualiza correctamente
             $response = array(
-                'err' => FALSE,
-                'message' => 'Registro actualziado correctamente',
-                'error' => 'Data correct',
+                'error' => null,
+                'properties' => $this
             );
 
             return $response;
         } else {
             // No se pudo actualizar
             $response = array(
-                'err' => TRUE,
-                'message' => 'Registro no actualziado correctamente',
                 'error' => $this->db->error_message(),
+                'properties' => null
             );
 
             return $response;

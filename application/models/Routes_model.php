@@ -31,10 +31,8 @@ class Routes_model extends CI_Model
         // El routes ya existe en BD
         if (isset($route_id)) {
             $respuesta = array(
-                'err' => TRUE,
-                'message' => 'La ruta ya existe',
                 'error' => $this->db->error_message(),
-                'routes_id' => -1,
+                'routes_id' => null,
             );
             return $respuesta;
         } else {
@@ -45,18 +43,14 @@ class Routes_model extends CI_Model
             if ($this->db->insert('routes', $this)) {
                 // Se insertó
                 $respuesta = array(
-                    'err' => FALSE,
-                    'message' => 'Registro insertado correctamente',
-                    'error' => 'no',
-                    'routes_id' => $this->db->insert_id(),
+                    'error' => null,
+                    'routes_id' => $this,
                 );
             } else {
                 // No se puede insertar
                 $respuesta = array(
-                    'err' => TRUE,
-                    'message' => 'Error al insertar',
                     'error' => $this->db->error_message(),
-                    'routes_id' => -1,
+                    'routes_id' => null,
                 );
             }
             return $respuesta;
@@ -74,18 +68,14 @@ class Routes_model extends CI_Model
         if (isset($route_id) && $this -> db -> update('routes',$this)) {
             // Se actualiza correctamente
             $response = array(
-                'err' => FALSE,
-                'message' => 'Registro actualziado correctamente',
-                'error' => 'Data correct',
-                'routes_id' => -1,
+                'error' => null,
+                'routes_id' => $this,
             );
 
             return $response;
         } else {
             // No se pudo actualizar
             $response = array(
-                'err' => TRUE,
-                'message' => 'Registro no actualziado correctamente',
                 'error' => $this->db->error_message(),
                 'routes_id' => -1,
             );

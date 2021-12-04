@@ -25,7 +25,7 @@ class Routes extends REST_Controller {
                 'routes' => null
             );
             $this -> response($respuesta, Rest_Controller::HTTP_INTERNAL_SERVER_ERROR);
-            return ;
+            return $respuesta;
         } else {
             $respuesta = array(
                 'error' => null,
@@ -42,6 +42,8 @@ class Routes extends REST_Controller {
     public function routes_post() {
         // Cojo los datos que nos pasas por el POST
         $data = $this -> post();
+        // Esto es por si nos mandan un objeto vacio que el formulario actúe
+        if (empty($data)) $data = array('error' => 'error');
         // Cargo la librería form_validation que trae CodeIgniter.
         $this -> load -> library('form_validation');
         // Le digo al form validation, que datos debe validar
@@ -55,7 +57,7 @@ class Routes extends REST_Controller {
         if ($this -> form_validation -> run()) {
             $route = $this -> Routes_model -> clean_data($data);
             $respuesta = $route -> insert($route);
-            if ($respuesta['err'] != null) {
+            if ($respuesta['error'] != null) {
                 $this -> response($respuesta, REST_Controller::HTTP_BAD_REQUEST);
             } else {
                 $this -> response($respuesta);
@@ -74,6 +76,8 @@ class Routes extends REST_Controller {
     public function routes_put() {
         // Cojo los datos que nos pasas por el POST
         $data = $this -> put();
+        // Esto es por si nos mandan un objeto vacio que el formulario actúe
+        if (empty($data)) $data = array('error' => 'error');
         // Cargo la librería form_validation que trae CodeIgniter.
         $this -> load -> library('form_validation');
         // Le digo al form validation, que datos debe validar
@@ -88,7 +92,7 @@ class Routes extends REST_Controller {
         if ($this -> form_validation -> run()) {
             $route = $this -> Routes_model -> clean_data($data);
             $respuesta = $route -> update($route);
-            if ($respuesta['err'] != null) {
+            if ($respuesta['error'] != null) {
                 $this -> response($respuesta, REST_Controller::HTTP_BAD_REQUEST);
             } else {
                 $this -> response($respuesta);
@@ -97,7 +101,7 @@ class Routes extends REST_Controller {
             // Validación fallida
             $respuesta = array(
                 'error' => $this -> form_validation -> get_errores_arreglo(),
-                'routes' => null
+                'routes' => null,
             );
 
             $this -> response($respuesta, REST_Controller::HTTP_BAD_REQUEST);

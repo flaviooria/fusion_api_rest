@@ -61,6 +61,10 @@ class Login extends REST_Controller {
     public function user_put() {
         // Cojo los datos que nos pasas por el POST
         $data = $this -> put();
+
+         //Si el data esta vacio, le definimos un parametro incorrecto 
+        //Esto nos servira para que aplique las reglas del form_validation
+        if (empty($data)) $data = array('error' => 'error');
         // Cargo la librería form_validation que trae CodeIgniter.
         $this -> load -> library('form_validation');
         // Le digo al form validation, que datos debe validar

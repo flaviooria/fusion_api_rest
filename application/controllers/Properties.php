@@ -15,23 +15,22 @@ class Properties extends REST_Controller {
         $this -> load -> model('Properties_model');
     }
 
-    public function properties_get()
-    {
+    public function properties_get() {
         $properties = $this -> Properties_model -> get_properties();
         $this -> load -> library('form_validation');
 
         if(!isset($properties)) {
             $respuesta = array(
-                'err' => TRUE,
-                'message' => $this -> form_validation -> get_errores_arreglo(),
+                'error' => $this -> form_validation -> get_errores_arreglo(),
                 'properties' => null
             );
+
             $this -> response($respuesta, Rest_Controller::HTTP_INTERNAL_SERVER_ERROR);
             return ;
+
         } else {
             $respuesta = array(
-                'err' => FALSE,
-                'message' => 'Properties obtenido correctamente',
+                'error' => null,
                 'properties' => $properties
             );
             $this -> response($respuesta);
@@ -45,6 +44,10 @@ class Properties extends REST_Controller {
     public function properties_put() {
         // Cojo los datos que nos pasas por el POST
         $data = $this -> put();
+
+        //Si el data esta vacio, le definimos un parametro incorrecto 
+        //Esto nos servira para que aplique las reglas del form_validation
+        if (empty($data)) $data = array('error' => 'error');
         // Cargo la librería form_validation que trae CodeIgniter.
         $this -> load -> library('form_validation');
         // Le digo al form validation, que datos debe validar
@@ -57,7 +60,7 @@ class Properties extends REST_Controller {
         if ($this -> form_validation -> run()) {
             $properties = $this -> Properties_model -> clean_data($data);
             $respuesta = $properties -> update($properties);
-            if ($respuesta['err']) {
+            if ($respuesta['error'] == null) {
                 $this -> response($respuesta, REST_Controller::HTTP_BAD_REQUEST);
             } else {
                 $this -> response($respuesta);
@@ -65,8 +68,7 @@ class Properties extends REST_Controller {
         } else {
             // Validación fallida
             $respuesta = array(
-                'err' => TRUE,
-                'message' => $this -> form_validation -> get_errores_arreglo(),
+                'error' => $this -> form_validation -> get_errores_arreglo(),
                 'properties' => null
             );
 
